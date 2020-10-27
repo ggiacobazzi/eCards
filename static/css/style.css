@@ -1,0 +1,44 @@
+/* Sticky Footer Classes */
+
+html,
+body {
+  height: 100%;
+    background: white;
+}
+
+#page-content {
+  flex: 1 0 auto;
+}
+
+#sticky-footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 100px;
+    flex-shrink: 0;
+}
+
+.footer-list {
+    float: left;
+}
+
+#text-muted {
+    color: #6c757d;
+}
+
+.right-div {
+    margin-right: 0px;
+    float: right;
+}
+
+.left-div {
+    margin-left: 0px;
+    float: left;
+}
+
+.form-inline {
+  min-width: 500px;
+}
+.search-input {
+  flex-grow: 3;
+}

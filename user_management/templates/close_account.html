@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Close account{% endblock %}
+{% block content %}
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <h1 class="font-weight-light mt-4 align-content-center">Close your account</h1>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-6">
+                <div class="row justify-content-center">
+                    <p>Are you sure you want to close your account?</p>
+                </div>
+                <div class="row justify-content-center">
+                    <p>This action is <strong>irreversible!</strong></p>
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row justify-content-center">
+                        <label for="accept" class="ml-2">
+                            <input type="checkbox" id="accept" value="0" />
+                            I Agree
+                        </label>
+                    </div>
+                    <div class="row justify-content-center">
+                        <button type="submit" class="btn btn-danger" id="submit_button" disabled>Close Account</button>
+                    </div>
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        //Add a JQuery click event handler onto our checkbox.
+        $('#accept').click(function(){
+            //If the checkbox is checked.
+            if($(this).is(':checked')){
+                //Enable the submit button.
+                $('#submit_button').attr("disabled", false);
+            } else{
+                //If it is not checked, disable the button.
+                $('#submit_button').attr("disabled", true);
+            }
+        });
+    </script>
+
+{% endblock %}

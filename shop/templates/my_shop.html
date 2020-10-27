@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block title %}My Shop{% endblock %}
+{% block content %}
+    <div class="row">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {{ message.tags }} mt-3" role="alert">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    {% if not request.user.is_vendor %}
+
+        <div class="row">
+            <p>
+                Your account cannot sell products
+            </p>
+        </div>
+
+    {% endif %}
+    <div class="row">
+        <div class="col-3">
+            {% if shop.photo.url is not None %}
+                <img src="{{ shop.photo.url }}" class="mt-4" width="250px" height="200px">
+            {% else %}
+                <img src="/static/img/default_shop_img.png" class="mt-4" width="250px" height="200px">
+            {% endif %}
+        </div>
+
+        <div class="col-9 text-left">
+            <h2 class="font-weight-light mt-4">{{ shop.name }}</h2>
+            <br/>
+            <i class="fas fa-user mr-1"></i> {{ user.username }}
+            <br/>
+            <i class="fas fa-at"></i> {{user.email}}
+            <br/>
+            <h5 class="font-weight-light mt-2"><strong>Open since:</strong> {{ shop.opening_date }}</h5>
+            <br/>
+
+        </div>
+    </div>
+    <hr/>
+
+    <div class="mt-2 ml-4">
+        <h5 class="font-weight-light mt-4">{{ shop.description }}</h5>
+    </div>
+    <hr/>
+    <ul class="nav nav-pills nav-fill mt-4" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" data-toggle="pill" href="#products" id="products-tab" role="tab" aria-controls="products" aria-selected="true">
+                   <span>
+                       <i class="fas fa-cubes pull-left"></i>
+                   </span>
+                Products
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="pill" href="#reviews" id="reviews-tab" role="tab" aria-controls="reviews" aria-selected="false">
+          <span>
+              <i class="far fa-comment-alt"></i>
+          </span>
+                Reviews
+            </a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane show active" id="products" role="tabpanel" aria-labelledby="products-tab">
+            <div class="card-group">
+                {% if not products %}
+                    <div class="card mt-4 mb-4 h-50" style="width: 18rem; height: 31em">
+                        <img src="{% static 'img/default_add_img.png' %}" class="card-img-top" alt="Add Image" height="200px">
+                        <div class="card-body">
+                            <h5 class="card-title">New Product</h5>
+                            <a href="{% url 'product:add_new_product' %}" class="btn btn-primary">Add</a>
+                        </div>
+                    </div>
+
+                {% endif %}
+
+
+                {% for prod in products %}
+                    {% if forloop.counter|add:"-1" is 0 or forloop.counter|divisibleby:"4" %}
+                        </div>
+                        <div class="card-group">
+
+                    {% endif %}
+
+                    {% if forloop.counter|add:"-1" is 0 %}
+                        <div class="col-lg-3 col-md-4 col-sm-6 col-12 d-flex mt-2 mb-1">
+                            <div class="card mt-4 mb-4 h-50 mr-3" style="width: 18rem; height: 31em">
+                                <img src="{% static 'img/default_add_img.png' %}" class="card-img-top" alt="Add Image" height="200px">
+                                <div class="card-body">
+                                    <h5 class="card-title">New Product</h5>
+                                    <a href="{% url 'product:add_new_product' %}" class="btn btn-primary">Add</a>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+                    <div class="col-lg-3 col-md-4 col-sm-6 col-12 d-flex mt-2 mb-1">
+                        <div class="card mt-4 mb-4 h-50 mr-3" style="width: 18rem; height: 31em">
+                            <img src="{{ prod.image.url }}" class="card-img-top"  alt="Product Image" height="200px">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ prod.title }}</h5>
+                                <h6 class="card-text">Price: {{ prod.price }}</h6>
+                                <h6 class="card-text">Quantity: {{ prod.quantity }}</h6>
+                                <h6 class="card-text">Shipment Price: {{ prod.shipment }}</h6>
+                                <a href="{% url 'product:edit_product' prod.id %}" class="btn btn-warning">Edit</a>
+                                <a href="#" class="btn btn-danger" data-toggle="modal" data-target="#removeProductModal" data-prodid={{ prod.id }}>Remove</a>
+                            </div>
+                        </div>
+                    </div>
+
+                {% endfor %}
+
+                <div class="modal fade" id="removeProductModal" tabindex="-1" role="dialog" aria-labelledby="removeProductLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="removeProductLabel">Remove Product</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                Do you want to remove this item from your shop (ID: <span id="prodspan"></span>)?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-danger" id="removeConfirmBtn">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                </div>
+        </div>
+        <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
+            <div class="row">
+                {% if not reviews %}
+                    <div class="row mt-4">
+                    <span class="ml-2">
+                        <i class="far fa-frown mr-2"></i>
+                        </span>
+                        No reviews yet
+                    </div>
+                {% else %}
+                    <div class="list-group">
+                        {% for review in reviews %}
+                            <a href="#" class="list-group-item list-group-item-action flex-column align-items-start hover">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">{{ review.account.username }}</h5>
+                                </div>
+                                <p class="mb-1">{{ review.review }}</p>
+                                <small>{{ review.rating }} / 5 <i class="fas fa-star"></i></small>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+
+
+
+
+
+
+{% endblock %}
+
+{% block javascript %}
+
+    <script>
+        $('#removeProductModal').on('show.bs.modal', function (event) {
+            var id = $(event.relatedTarget).data('prodid');
+            console.log("id: " + id);
+            $('#prodspan').html(id);
+        })
+        $(document).on('click', '#removeConfirmBtn', function (event) {
+            event.preventDefault();
+            var prodid = document.getElementById("prodspan").innerText;
+            $.ajax({
+                url: '{% url 'product:remove_product' %}',
+                method: 'POST',
+                dataType: 'json',
+                data:{
+                    'prodid': prodid,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                },
+                success: function () {
+                    $('#removeProductModal').modal('toggle');
+                    location.reload();
+                },
+                error: function () {
+                    $('#removeProductModal').modal('toggle');
+                    console.log('error');
+                    alert('Something went wrong');
+                }
+            })
+
+        });
+
+        $(".alert-dismissible").fadeTo(2000, 500).slideUp(500, function(){
+            $(".alert-dismissible").alert('close');
+        });
+    </script>
+{% endblock %}

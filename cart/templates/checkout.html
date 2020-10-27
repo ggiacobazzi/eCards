@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Checkout{% endblock %}
+{% load crispy_forms_filters %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <h2 class="font-weight-light mt-4">
+                Order Summary
+            </h2>
+            <table class="table mt-4">
+                <tbody>
+                {% for item in order.get_cart_items %}
+                    <tr>
+                        <td>{{ item }}</td>
+                        <td>${{ item.product.price }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+
+                <tr>
+                    <td><strong>Order Total</strong> </td>
+                    <td> <strong>${{ order.get_cart_total }} + ${{ order.get_shipment_cost}} (Shipment)</strong></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td> <strong>${{ order.get_total_price}}</strong></td>
+                </tr>
+            </table>
+            <button class="btn btn-warning" style="width: 100%;" id="payment">Checkout with a credit card</button>
+        </div>
+    </div>
+    </div>
+    <div class="container mt-4" style="display: none" id="payment_container">
+        <div class="row justify-content-center">
+            <h4 class="font-weight-light">
+                Payment Info
+            </h4>
+        </div>
+        <div class="row justify-content-center">
+            <form method="post">
+                {% csrf_token %}
+                {{payment_form | crispy}}
+                {% if payment_form_error %}
+                    <div class="alert alert-danger" role="alert">
+                        {{payment_form_error}}
+                    </div>
+                {% endif %}
+                <div class="row justify-content-center">
+                    <button class="btn btn-danger mt-4 mb-4" type="submit">Pay</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        $('#payment').on('click', function () {
+            $('#payment_container').fadeToggle();
+        });
+    </script>
+
+{% endblock %}

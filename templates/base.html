@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap/JQuery/Popper -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.14.0/css/all.css" integrity="sha384-HzLeBuhoNPvSl5KYnjx0BT+WB0QEEqLprO+NBkkk5gbc67FTaL7XIGa2w1L0Xbgc" crossorigin="anonymous">
+    <!-- CSS Style -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <title>{% block title %}
+        Card Ecommerce
+    {% endblock %}</title>
+
+</head>
+<body>
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-light" style="background: #cce6ff">
+
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            {% load static%}
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <img src="{% static 'img/logo3.png' %}" height="30" class="d-inline-block align-top" alt="">
+            </a>
+            {#            <li class="nav-item">#}
+            {#                <a class="nav-link" href="#">About {{ about }}</a>#}
+            {#            </li>#}
+
+        </ul>
+        <ul class="navbar-nav">
+            <li class="nav-item" style="border-right: 0.1rem">
+                <div class="input-group">
+                    <form class="form-inline" action="{% url 'search' %}" method="post">
+                        {% csrf_token %}
+                        <input class="form-control mr-sm-2 search-input" name="prod_query" style="width: 500px" type="search" placeholder="Search..." aria-label="Search">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-warning my-2 my-sm-0" type="submit">
+                                <i class="fas fa-search text-grey" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </li>
+        </ul>
+        {% if not request.user.is_authenticated %}
+            <ul class="nav justify-content-end">
+                <li class="nav-item">
+                    <a href="/register" class="nav-link" >Register</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'user_management:login' %}">Login</a>
+                </li>
+            </ul>
+        {% else %}
+            <ul class="nav justify-content-end">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown"
+                   href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                    {{ user.first_name}}
+                </a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a class="dropdown-item" href="{% url 'user_management:profile' %}">
+                        <i class="fas fa-user"></i>
+                        <span>Profile</span>
+                    </a>
+                    {% if user.is_vendor %}
+                        {% if user.has_shop %}
+                            <a class="dropdown-item" href="{% url 'shop:my_shop' %}">
+                                <i class="fas fa-store"></i>
+                                <span>Shop</span>
+                            </a>
+                        {% else %}
+                            <a class="dropdown-item" href="{% url 'shop:create_shop_partial' %}">
+                                <i class="fas fa-store"></i>
+                                <span>Shop</span>
+                            </a>
+                        {% endif %}
+                    {% elif not user.is_vendor %}
+                        <a class="dropdown-item" href="{% url 'shop:create_shop' %}">
+                            <i class="fas fa-store"></i>
+                            <span>Shop</span>
+                        </a>
+                    {% endif %}
+                    <a class="dropdown-item" href="{% url 'shopping_cart:cart_summary' %}">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Cart</span>
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{% url 'user_management:logout' %}">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Log Out</span>
+                    </a>
+                </div>
+
+            </li>
+        {% endif %}
+
+        </ul>
+
+
+    </div>
+    </a>
+</nav>
+
+</div>
+
+<div class="container">
+    {% block content %}
+    {% endblock %}
+</div>
+{#<footer id="sticky-footer" class="py-4 bg-dark text-white-50">#}
+{#        <span class="left-div">#}
+{#            <p class="ml-3">#}
+{#                <h9>Telephone: 0000</h9>#}
+{#            </p>#}
+{#        </span>#}
+{#    <span class="right-div">#}
+{#            Socials:#}
+{#            <img src="{% static 'img/fb_icon.png' %}">#}
+{#            <img src="{% static 'img/ig_icon.png' %}">#}
+{#            <img src="{% static 'img/pint_icon.png' %}">#}
+{#        </span>#}
+{#</footer>#}
+{% block javascript %}
+{% endblock %}
+</body>
+</html>

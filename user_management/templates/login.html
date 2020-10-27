@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+{% block title %}Login {% endblock %}
+{% block content %}
+    <div class="container">
+
+        <div class="row d-flex justify-content-center">
+            {% load static %}
+            <img class="mt-4" src="{% static 'img/logo3.png' %}">
+        </div>
+        <div class="row d-flex justify-content-center">
+            <h1 class="font-weight-light mt-4 align-content-center">Login</h1>
+        </div>
+            <div class="row justify-content-center">
+                <form class="w-25 mt-2" method="post"> {% csrf_token %}
+                {{ form | crispy }}
+                    <div class="row justify-content-center">
+                        <p>Don't have an account? Create one <a href="{% url 'user_management:register' %}">here</a></p>
+                        <p>Forgot your password? Reset <a href="{% url 'user_management:reset_password' %}">now</a></p>
+                    </div>
+                    <div class="row justify-content-center">
+                                                <button class="btn btn-success mt-2" type="submit"> Login </button>
+
+                    </div>
+            </form>
+            </div>
+
+    </div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Finalize New Product{% endblock %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+{% block content %}
+
+    <div class="container justify-content-center">
+        <div class="row">
+            <h2 class="font-weight-light justify-content-center mt-4">
+                Selected Product
+            </h2>
+        </div>
+        <div class="row">
+            <h4 class="font-weight-light justify-content-center">
+                <strong>ID:</strong> {{ prod_id }}
+            </h4>
+        </div>
+        <div class="row">
+            <div class="col-3">
+                {% if card_info.image_uris.small %}
+                    <img src="{{ card_info.image_uris.small }}" class="mt-4">
+                {% elif card_info.card_faces %}
+                    <img src="{{ card_info.card_faces.0.image_uris.small }}" class="mt-4">
+                {% endif %}
+            </div>
+            <div class="col-9 text-left">
+                <h4 class="font-weight-light mt-4">
+                    <strong>Name: </strong>{{ card_info.name }}
+                </h4>
+            </div>
+        </div>
+        <div class="row">
+            <form class="w-40 mt-4" method="post">
+                {% csrf_token %}
+                {{ new_prod_form | crispy }}
+                <button class="btn btn-success mb-4" type="submit"> Add Product </button>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block javascript %}
+
+{% endblock %}

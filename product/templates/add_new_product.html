@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block title %}Add New Product{% endblock %}
+{% block content %}
+
+    <div class="container justify-content-center">
+        <div class="row">
+            <h2 class="font-weight-light mt-2">
+                Set
+            </h2>
+        </div>
+        <div class="row">
+            <select class="mt-2" name="setsList" id="setsListID">
+                {% for set in sets %}
+                    <option value="{{ set.code }}">{{ set.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="row">
+            <button class="btn btn-success mt-3" id="checkButton">
+                Check
+            </button>
+        </div>
+        <div class="row mt-4">
+            <h2 class="font-weight-light mt-2">
+                Cards
+            </h2>
+        </div>
+        <table class="table mb-4" id="tableData">
+            <thead class="thead-light">
+            <tr>
+                <th scope="col">
+                    ID
+                </th>
+                <th scope="col">
+                    Image
+                </th>
+                <th scope="col">
+                    Name
+                </th>
+                <th scope="col">
+                    Text
+                </th>
+                <th scope="col">
+                    Action
+                </th>
+            </tr>
+            </thead>
+        </table>
+    </div>
+
+
+
+{% endblock %}
+
+
+{% block javascript %}
+    <script>
+        let data2;
+        $(document).ready(function() {
+            data2 = $('#setsListID').val();
+            console.log(data2);
+        });
+
+        $(document).change(function () {
+            data2 = $('#setsListID').val();
+        });
+
+        $(document).ready(function () {
+            $('#checkButton').click(function () {
+                let setData = 'https://api.scryfall.com/sets/' + data2;
+                fetch(setData, {
+                    mode: 'cors'
+                })
+                    .then(response => response.json())
+                    .then((data) => {
+                        console.log(data);
+                        let cardsData = data.search_uri;
+
+                        // Clear old table
+                        $('#tableData').dataTable().fnDestroy();
+
+                        $('#tableData').dataTable({
+                            ajax: {
+                                url: cardsData,
+                                type: "GET",
+                                dataSrc: "data",
+                                processing: true,
+                                destroy: true,
+                            },
+                        {% load static %}
+                            columns: [
+                                {"data": "id"},
+                                {
+                                    "data": "image_uris.small", "render": function (data, type, row) {
+                                        return '<img src="' + data + '"/>';
+                                    }
+                                },
+                                {"data": "name"},
+                                {"data": "oracle_text".substring(0,100)},
+                                {"data": null, title: 'Action', wrap:true, "render": function(data, type, row, meta){
+                                        var baseUrl = "<a href={% url 'product:finalize_new_product' 0 %} class='btn btn-success'>Add</button>";
+                                        var data = baseUrl.replace('0', row.id);
+                                        return data;
+                                    }}
+
+
+                            ]
+                        });
+                    });
+
+            });
+
+        });
+
+    </script>
+
+{% endblock %}

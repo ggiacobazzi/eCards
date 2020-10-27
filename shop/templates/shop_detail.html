@@ -1,0 +1,317 @@
+{% extends 'base.html' %}
+{% block title %}Shop Detail{% endblock %}
+{% block content %}
+    <div class="row">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {{ message.tags }} mt-3" role="alert">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <div class="row">
+        <div class="col-3">
+            {% if shop.photo.url is not None %}
+                <img src="{{ shop.photo.url }}" class="mt-4" width="250px" height="200px">
+            {% else %}
+                <img src="/static/img/default_shop_img.png" class="mt-4" width="250px" height="200px">
+            {% endif %}
+        </div>
+
+        <div class="col-9 text-left">
+            <h2 class="font-weight-light mt-4">{{ shop.name }}</h2>
+            <br/>
+            <i class="fas fa-user mr-1"></i> {{ vendor.username }}
+            <br/>
+            <i class="fas fa-at"></i> {{vendor.email}}
+            <br/>
+            <h5 class="font-weight-light mt-2"><strong>Open since:</strong> {{ shop.opening_date }}</h5>
+            <br/>
+            <h5 class="font-weight-light mt-2">{{ general_rating }} / 5 <i class="fas fa-star"></i></h5>
+
+        </div>
+    </div>
+    <hr/>
+
+    <div class="mt-2 ml-4">
+        <h5 class="font-weight-light mt-4">{{ shop.description }}</h5>
+    </div>
+    <hr/>
+    <ul class="nav nav-pills nav-fill mt-4" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" data-toggle="pill" href="#products" id="products-tab" role="tab" aria-controls="products" aria-selected="true">
+                   <span>
+                       <i class="fas fa-cubes pull-left"></i>
+                   </span>
+                Products
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="pill" href="#reviews" id="reviews-tab" role="tab" aria-controls="reviews" aria-selected="false">
+          <span>
+              <i class="far fa-comment-alt"></i>
+          </span>
+                Reviews
+            </a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane show active" id="products" role="tabpanel" aria-labelledby="products-tab">
+            <div class="card-group">
+                {% if not products %}
+                    <div class="row">
+                        <h3 class="font-weight-light">
+                            No products available
+                        </h3>
+                    </div>
+
+                {% endif %}
+
+
+                {% for prod in products %}
+                    {% if forloop.counter|add:"-1" is 0 or forloop.counter|divisibleby:"4" %}
+                        </div>
+                        <div class="card-group">
+
+                    {% endif %}
+                    {% if prod.quantity > 0 %}
+                    <div class="col-lg-3 col-md-4 col-sm-6 col-12 d-flex mt-2 mb-1">
+                        <div class="card mt-4 mb-4 h-50 mr-3" style="width: 18rem; height: 31em">
+                            <img src="{{ prod.image.url }}" class="card-img-top"  alt="Product Image" height="200px">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ prod.title }}</h5>
+                                <h6 class="card-text">Price: {{ prod.price }}</h6>
+                                <h6 class="card-text">Quantity: {{ prod.quantity }}</h6>
+                                <h6 class="card-text">Shipment Price: {{ prod.shipment }}</h6>
+                                {% if user.is_authenticated and shop.user != request.user %}
+                                    <button class="btn btn-success" data-toggle="modal"
+                                            data-target="#buyProductModal" data-prod="{{ prod.title }}" data-price="{{ prod.price }}"
+                                            data-quantity="{{ prod.quantity }}" data-shipment="{{ prod.shipment }}" data-prodid="{{ prod.id }}">
+                                        Buy
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                {% endfor %}
+
+
+
+                </div>
+        </div>
+
+        <!-- Review Panel -->
+        <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
+        {% if request.user.is_authenticated %}
+            <div class="row">
+                <button class="btn btn-success mt-4" data-toggle="modal" data-target="#addReviewModal">Add Review</button>
+            </div>
+        {% endif %}
+            <div class="row">
+                <div class="list-group">
+                    {% if not reviews %}
+                        <div class="row mt-4">
+                    <span class="ml-2">
+                        <i class="far fa-frown mr-2"></i>
+                        </span>
+                            No reviews yet
+                        </div>
+                    {% else %}
+
+                        {% for review in reviews %}
+                            <a href="#" class="list-group-item list-group-item-action flex-column align-items-start mt-4 d-block" >
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">By {{ review.account.username }}</h5>
+                                </div>
+                                <p class="mb-1">{{ review.review }}</p>
+
+                                <small>{{ review.rating }} / 5 <i class="fas fa-star"></i></small>
+                            </a>
+                        {% endfor %}
+
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Add Review Modal -->
+    <div class="modal fade" id="addReviewModal" tabindex="-1" role="dialog" aria-labelledby="addReviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addReviewModalLabel">Add Review</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label>Rating</label>
+                            <select class="form-control" id="rating">
+                                <option value="0">0</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleFormControlTextarea1" >Review:</label>
+                            <textarea class="form-control" id='review' maxlength="400"></textarea>
+                        </div>
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" id="reviewConfirm" class="btn btn-success">Add Review</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Buy Item Modal -->
+    <div class="modal fade" id="buyProductModal" tabindex="-1" role="dialog" aria-labelledby="buyProductModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="buyProductModalLabel">Buy {{ product.title }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="table">
+                            <table class="table-bordered">
+                                <tr>
+                                    <td>ID</td>
+                                    <td id="prod-id"></td>
+                                </tr>
+                                <tr>
+                                    <td>Product</td>
+                                    <td id="prod-name"></td>
+                                </tr>
+                                <tr>
+                                    <td>Quantity </td>
+                                    <td><input type="number" max="1" value="1" min="1" id="prod-quantity"></td>
+                                </tr>
+                                <tr>
+                                    <td>Price</td>
+                                    <td id="prod-price"></td>
+                                </tr>
+                                <tr>
+                                    <td>Shipment</td>
+                                    <td id="prod-shipment"></td>
+                                </tr>
+                                <tr>
+                                    <td>Total</td>
+                                    <td id="prod-total"></td>
+                                </tr>
+                            </table>
+
+                        </div>
+
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-dismiss="modal">Close</button>
+                    <button type="button" id="buyConfirm" class="btn btn-primary">Buy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascript %}
+
+    <script>
+        $(document).on('change',"#prod-quantity", function(){
+            var total = (+($('#prod-price').text())) * (+($('#prod-quantity').val())) + (+($('#prod-shipment').text()));
+            $('#prod-total').html(total);
+        });
+
+        $(document).on('click', '#reviewConfirm', function (event) {
+            event.preventDefault();
+            $.ajax({
+                url: '{% url 'shop:shop_add_review' %}',
+                method: 'POST',
+                dataType: 'json',
+                data:{
+                    'shop': '{{ shop }}',
+                    'user': '{{ user.id }}',
+                    'rating': $('#rating').val(),
+                    'review': $('#review').val(),
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                },
+                success: function () {
+                    $('#ReviewModal').modal('toggle');
+                    location.reload();
+                },
+                error : function(err){
+                    $('#ReviewModal').modal('toggle');
+                    console.log(err);
+                    alert('You already wrote a review for this shop');
+                }
+            })
+        });
+
+        $('#buyProductModal').on('show.bs.modal', function (event) {
+            var prodid = $(event.relatedTarget).data('prodid');
+            $('#prod-id').text(prodid);
+            var prod = $(event.relatedTarget).data('prod');
+            $('#prod-name').text(prod);
+            var quantity = $(event.relatedTarget).data('quantity');
+            $('#prod-quantity').attr('max', quantity);
+            var price = $(event.relatedTarget).data('price');
+            $('#prod-price').text(price);
+            var shipment = $(event.relatedTarget).data('shipment');
+            $('#prod-shipment').text(shipment);
+            var total = (+($('#prod-price').text())) * (+($('#prod-quantity').val())) + (+($('#prod-shipment').text()));
+            $('#prod-total').html(total);
+        });
+
+        $(document).on('click', '#buyConfirm', function (event) {
+            event.preventDefault();
+            var prodid = $('#prod-id').text();
+            var product = $('#prod-name').text();
+            var total = $('#prod-total').text();
+            var quantity = $('#prod-quantity').val();
+            $.ajax({
+                url: '{% url 'shopping_cart:add_to_cart' %}',
+                method: 'POST',
+                dataType: 'json',
+                data:{
+                    'prod_id': prodid,
+                    'product': product,
+                    'shop': '{{ shop }}',
+                    'total': total,
+                    'quantity': quantity,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                },
+                success: function () {
+                    $('#buyProductModal').modal('toggle');
+                    location.reload();
+                },
+                error: function () {
+                    $('#buyProductModal').modal('toggle');
+                    console.log('error');
+                    alert('Something went wrong');
+                }
+
+            })
+        });
+        $(".alert-dismissible").fadeTo(2000, 500).slideUp(500, function(){
+            $(".alert-dismissible").alert('close');
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,524 @@
+{% extends 'base.html' %}
+{% block title %}Account Profile {% endblock %}
+{% block content %}
+
+    <div class="container mt-4">
+        <div class="row">
+
+            <h1 class="font-weight-light mt-4 align-content-center">
+                <i class="fas fa-user"></i> {{ user.username }}
+            </h1>
+        </div>
+        <div class="row">
+            {% if not user.is_vendor %}
+                <span class="badge badge-primary">User</span>
+            {% elif user.is_vendor %}
+                <span class="badge badge-success">Vendor</span>
+            {% endif %}
+            {% if user.is_admin %}
+                <span class="badge badge-danger ml-1">Admin</span>
+            {% endif %}
+        </div>
+        <hr/>
+        <div class="row">
+            <div class="col-2">
+                <ul class="nav flex-column nav-pills mb-3 nav-fill" id="pills-tab" role="tablist" aria-orientation="vertical">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="true">Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="pills-settings-tab" data-toggle="pill" href="#pills-settings" role="tab" aria-controls="pills-settings" aria-selected="false">Settings</a>
+                    </li>
+                    {% if user.is_admin %}
+                        <li class="nav-item">
+                            <a class="nav-link" id="pills-admin-tab" data-toggle="pill" href="#pills-admin" role="tab" aria-controls="pills-admin" aria-selected="false">AdminBoard</a>
+                        </li>
+                    {% endif %}
+                    {% if user.is_vendor %}
+                        <li class="nav-item">
+                            <a class="nav-link" id="pills-shop-tab" data-toggle="pill" href="#pills-shop" role="tab" aria-controls="pills-shop" aria-selected="false">Shop</a>
+                        </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link" id="pills-orders-tab" data-toggle="pill" href="#pills-orders" role="tab" aria-controls="pills-orders" aria-selected="false">Orders</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-10">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert {{ message.tags }} mt-3" role="alert">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+                <div class="tab-content" id="pills-tabContent">
+                    <div class="tab-pane fade show active" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+                        <div class="row">
+                            <h6 class="font-weight-light mt-4 align-content-center"><strong>First Name: </strong>{{ user.first_name }}</h6>
+                        </div>
+                        <div class="row">
+                            <h6 class="font-weight-light mt-4 align-content-center"><strong>Last Name:</strong> {{ user.last_name }}</h6>
+                        </div>
+                        <div class="row">
+                            <h6 class="font-weight-light mt-4 align-content-center"><strong>Registered since:</strong> {{ user.date_joined}}</h6>
+                        </div>
+                        <hr/>
+                        <div class="row">
+                            <h6 class="font-weight-light mt-4 align-content-center"><strong>Email: </strong>{{ user.email}}</h6>
+                        </div>
+
+                        {% if user.is_vendor %}
+                            <hr/>
+                            <div class="row">
+                                <h6 class="font-weight-light mt-4 align-content-center"><strong>Address:</strong> {{ user.address}}</h6>
+                            </div>
+                            <div class="row">
+                                <h6 class="font-weight-light mt-4 align-content-center"><strong>Telephone number:</strong> {{ user.telephone}}</h6>
+
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="tab-pane fade" id="pills-settings" role="tabpanel" aria-labelledby="pills-settings-tab">
+                        <div class="row">
+                            <h6 class="font-weight-light mt-4 align-content-center"><strong>Change your password</strong></h6>
+                        </div>
+                        <div class="row">
+                            <a href="{% url 'user_management:change_password' %}" class="btn btn-danger btn-sm active mt-2" role="button" aria-pressed="true">Change</a>
+                        </div>
+                        {% if not user.is_admin %}
+                            <div class="row">
+                                <h6 class="font-weight-light mt-4 align-content-center"><strong>Close Account</strong></h6>
+                            </div>
+                            <div class="alert alert-danger mt-1" role="alert">
+                                This action is irreversible
+                            </div>
+                            <div class="row">
+                                <a href="{% url 'user_management:close_account' %}" class="btn btn-danger btn-sm active mt-2" role="button" aria-pressed="true">Close account</a>
+                            </div>
+                        {% endif %}
+
+
+                    </div>
+                    <div class="tab-pane fade mb-4" id="pills-admin" role="tabpanel" aria-labelledby="pills-admin-tab">
+                        <h6 class="font-weight-light mt-4 align-content-center"><strong>Users:</strong></h6>
+                        <table class="table mt-4" id="usertable">
+                            <thead>
+                            <th scope="col">
+                                Username
+                            </th>
+                            <th scope="col">
+                                Email
+                            </th>
+                            <th scope="col">
+                                Date Joined
+                            </th>
+                            <th scope="col">
+                                Last Login
+                            </th>
+                            <th scope="col">
+                                Type
+                            </th>
+                            <th scope="col">
+                                Actions
+                            </th>
+                            </thead>
+                            <tbody>
+                            {% for user in users %}
+                                <tr>
+                                    <th scope="row">
+                                        {{ user.username }}
+                                    </th>
+                                    <td>
+                                        {{ user.email }}
+                                    </td>
+                                    <td>
+                                        {{ user.date_joined }}
+                                    </td>
+                                    <td>
+                                        {{ user.last_login }}
+                                    </td>
+                                    <td>
+                                        {% if user.is_admin %}
+                                            <span style="width:50px" class="badge badge-danger ml-1">Admin</span>
+                                        {% elif user.is_vendor %}
+                                            <span style="width:50px" class="badge badge-success">Vendor</span>
+                                        {% else %}
+                                            <span style="width:50px" class="badge badge-primary">User</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if user.is_active %}
+                                            <a data-toggle="modal" data-target="#banModal" data-userid={{ user.username }}>
+                                                <span class="fas fa-ban" style="color:red; cursor: pointer;" data-toggle="tooltip" title="Ban User"
+                                                      data-container="body" id="banbutton" href="#banModal"></span>
+                                            </a>
+                                        {% else %}
+                                            <a data-toggle="modal" data-target="#unbanModal" data-userid={{ user.username }}>
+                                                <span class="fas fa-check" style="color:limegreen; cursor: pointer;" data-toggle="tooltip" title="Unban User"
+                                                      id="unbanbutton" href="#unbanModal"></span>
+                                            </a>
+                                        {% endif%}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade" id="pills-shop" role="tabpanel" aria-labelledby="pills-shop-tab">
+                        <div class="row">
+                            <h4 class="font-weight-light">
+                                Sales done:
+                            </h4>
+                        </div>
+                        <table class="table mt-4 mb-4" id="salesTable">
+                            <thead class="thead-light">
+                            <tr>
+                                <th scope="col">
+                                    Sale ID
+                                </th>
+                                <th scope="col">
+                                    Name
+                                </th>
+                                <th scope="col">
+                                    Price
+                                </th>
+                                <th scope="col">
+                                    Order Date
+                                </th>
+                                <th scope="col">
+                                    Status
+                                </th>
+                                <th scope="col">
+                                    Action
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for sale in sales %}
+                                <tr>
+                                    <td>
+                                        {{ sale.id }}
+                                    </td>
+                                    <td>
+                                        <a>
+                                            {{ sale.product.title}}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {{ sale.final_price}}
+                                    </td>
+                                    <td>
+                                        {{ sale.date_ordered }}
+                                    </td>
+                                    <td>
+                                        {% if sale.is_sent %}
+                                            Sent
+                                        {% else %}
+                                            Not Sent
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if sale.is_sent %}
+                                            <button id="sendItem" disabled class="btn btn-warning" data-saleid="{{ sale.id }}">
+                                                Send
+                                            </button>
+                                        {% else %}
+                                            <button id="sendItem" class="btn btn-warning" data-saleid="{{ sale.id }}">
+                                                Send
+                                            </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                    <div class="tab-pane fade" id="pills-orders" role="tabpanel" aria-labelledby="pills-orders-tab">
+                        <div class="row">
+                            <h4 class="font-weight-light">
+                                Orders done:
+                            </h4>
+                        </div>
+                        <table class="table mt-2">
+                            <thead class="thead-light">
+                            <tr>
+                                <th scope="col" class="orderID">
+                                    Order ID
+                                </th>
+                                <th scope="col">
+                                    Quantity
+                                </th>
+                                <th scope="col">
+                                    Price
+                                </th>
+                                <th scope="col">
+                                    Order Date
+                                </th>
+                                {#                                <th scope="col">#}
+                                {#                                    Status#}
+                                {#                                </th>#}
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% if orders.count > 0 %}
+
+                                {% for order in orders %}
+                                    {% if order.is_ordered %}
+                                    <tr>
+                                        <td>
+                                            <a href="#" data-toggle="modal" data-target="#viewOrder" data-orderid="{{ order.id }}" class="orderID" id="openOrderModal">
+                                                {{ order.id }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            {{ order.get_cart_items.count }}
+                                        </td>
+                                        <td>
+                                            {{ order.get_total_price}}
+                                        </td>
+                                        <td>
+                                            {{ order.date_ordered }}
+                                        </td>
+
+                                    </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td>
+                                        No Orders Done
+                                    </td>
+                                </tr>
+
+                            {% endif %}
+                            </tbody>
+
+                        </table>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    {#    AdminBoard - Ban Modal#}
+    <div class="modal fade" id="banModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <form method="post" action="{% url 'user_management:ban_user' %}">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title font-weight-light" id="BanModalLabel">Ban user</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <h6 class="font-weight-light">Do you want to ban user named <span id="user"></span>?</h6>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" id="banConfirm" class="btn btn-danger">Ban</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    {#    AdminBoard - Unban Modal#}
+    <div class="modal fade" id="unbanModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <form method="post" action="{% url 'user_management:unban_user' %}">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title font-weight-light" id="UnbanModalLabel">Unban user</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <h6 class="font-weight-light">Do you want to unban user named <span id="user2"></span>?</h6>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" id="unbanConfirm" class="btn btn-success">Unban</button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- Orders - View Orders Modal -->
+    <div class="modal fade" id="viewOrder" tabindex="-1" role="dialog" aria-labelledby="viewOrdersLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title font-weight-light" id="viewOrdersLabel">Orders</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="table" id="ordersTable">
+                        <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Item ID</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Sent Status</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+
+{% block javascript %}
+    <script>
+
+        $(document).ready(function(){
+            $('#usertable').DataTable();
+            $('#salesTable').DataTable();
+        });
+
+        $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+
+        $('#banModal').on('show.bs.modal', function (event) {
+            var usr = $(event.relatedTarget).data('userid');
+            console.log('username: ' + usr);
+            $('#user').html(usr);
+        });
+
+        $('#unbanModal').on('show.bs.modal', function (event) {
+            var usr = $(event.relatedTarget).data('userid');
+            console.log('username: ' + usr);
+            $('#user2').html(usr);
+        });
+
+        $(document).on('click', '#openOrderModal', function (event){
+            event.preventDefault();
+            var id = $(this).closest("tr").find(".orderID").text();
+            $.ajax({
+                url: '{% url 'user_management:get_orders' %}',
+                method: 'POST',
+                dataType: 'json',
+                data:{
+                    'order_id': id,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function (data1) {
+                    var data = JSON.parse(data1);
+                    console.log(data);
+                    $('#ordersTable > tbody > tr').remove();
+                    for (let i = 0; i < Object.keys(data).length; i++) {
+                        var row = '<tr>' +
+                            '<td>' + data[i].fields.product + '</td>' +
+                            '<td>' + data[i].fields.final_price + '&euro; </td>' +
+                            '<td>' + data[i].fields.quantity + '</td>' +
+                            '<td>' + (data[i].fields.is_sent ? 'Sent' : 'Not Sent') + '</td>' +
+                            '</tr>';
+                        $('#ordersTable > tbody').append(row);
+                    }
+                },
+                error: function (error) {
+                    $('#viewOrder').modal('toggle');
+                    console.log(error);
+                    alert('Something went wrong');
+                }
+            })
+        });
+
+        $(document).on('click', "#banConfirm", function (event) {
+            event.preventDefault();
+            var username = document.getElementById("user").innerText;
+            console.log("User: " + username);
+            $.ajax({
+                url: '{% url 'user_management:ban_user'  %}',
+                method: 'POST',
+                dataType: 'json',
+                data:{
+                    'username': username,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                },
+                success: function(){
+                    $('#banModal').modal('toggle');
+                    location.reload();
+                },
+                error: function(){
+                    $('#banModal').modal('toggle');
+                    console.log('error');
+                    alert('Something went wrong');
+                }
+
+            });
+
+        });
+
+        $(document).on('click', "#unbanConfirm", function (event) {
+            event.preventDefault();
+            var username = document.getElementById("user2").innerText;
+            $.ajax({
+                url: '{% url 'user_management:unban_user' %}',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    'username': username,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                },
+                success: function(data){
+                    $('#unbanModal').modal('toggle');
+                    location.reload();
+                },
+                error: function(){
+                    $('#unbanModal').modal('toggle');
+                    console.log('error');
+                    alert('Something went wrong');
+                }
+            })
+
+        });
+
+        $(document).on('click', "#sendItem", function (event) {
+            event.preventDefault();
+            var id = $(this).data('saleid');
+            $.ajax({
+                url: '{% url 'product:send_product' %}',
+                method: 'POST',
+                dataType: 'json',
+                data:{
+                    "sale_id": id,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function () {
+                    console.log("done");
+                    location.reload();
+                },
+                error: function (error) {
+                    console.log(error);
+                    alert('Something went wrong');
+
+                }
+            })
+        });
+        $(".alert-dismissible").fadeTo(2000, 500).slideUp(500, function(){
+            $(".alert-dismissible").alert('close');
+        });
+    </script>
+
+{% endblock %}
+
+

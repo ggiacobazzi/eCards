@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <h1 class="font-weight-light mt-4">Create your shop</h1>
+        </div>
+        <div class="row justify-content-center">
+            <h5 class="font-weight-light mt-2">It seems you have not a shop. Do you want to open one?</h5>
+        </div>
+        <div class="row justify-content-center">
+            <button class="btn btn-success mt-4" id="shop_button">Open Shop</button>
+        </div>
+        <div class="container" style="display:none" id="shop_container">
+            <div class="row justify-content-center">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{form | crispy}}
+                    <div class="row justify-content-center">
+                        <button class="btn btn-danger mt-4 mb-4" type="submit">Create your shop</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        $('#shop_button').on('click', function () {
+            $('#shop_container').fadeToggle();
+        });
+
+    </script>
+{% endblock %}

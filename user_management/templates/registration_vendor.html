@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+{% block title %} Create a Vendor Account {% endblock %}
+{% block content %}
+    <!-- Nav pills -->
+    <div class="container mt-4">
+
+        <div class="row">
+            <div class="col-12 d-flex justify-content-center">
+                <h1 class="font-weight-light mt-4 align-content-center">Create a new E-Cards Vendor Account</h1>
+            </div>
+        </div>
+
+        <!-- Nav pills -->
+        <ul class="nav nav-pills nav-fill mt-4" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'user_management:register' %}">
+                   <span>
+                       <i class="fas fa-user pull-left"></i>
+                   </span>
+                    User
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="#home">
+          <span>
+              <i class="fas fa-user-tie"></i>
+          </span>
+                    Vendor
+                </a>
+            </li>
+        </ul>
+
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <!-- Vendor -->
+            <div id="home" class="tab-pane container active" >
+                <div class="container mt-4 overflow-auto" style="height: 500px; width: 600px;">
+                    {% crispy formVendor %}
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+{% endblock %}
+

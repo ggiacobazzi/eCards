@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block title %}Cart Summary{% endblock %}
+{% block content %}
+
+    <div class="container">
+        <h2 class="font-weight-light mt-4">
+            Cart
+        </h2>
+        <div class="row">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {{ message.tags }} mt-3" role="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col"></th>
+                <th scope="col">Name</th>
+                <th scope="col">Price</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in order.get_cart_items %}
+                <tr>
+                    <td scope="col"><img width="100" height="70" class="img-fluid" src="{{ item.product.image.url }}"></td>
+                    <td scope="col">{{ item.product.title }}</td>
+                    <td scope="col">{{ item.product.price }}</td>
+                    <td scope ="col">{{ item.quantity }}</td>
+                    <td scope="col"><button class="btn btn-danger" data-toggle="modal" data-target="#deleteModal" data-id="{{ item.id }}">
+                        <i class="fas fa-trash"></i>
+                    </button></td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan= 3> You have not added any items yet.</td>
+                </tr>
+            {% endfor %}
+            <tr>
+                {% if order.get_cart_total != None %}
+                    <td colspan=2>
+                        <strong class="pull-right">Order Total:</strong>
+                    </td>
+
+                    <td colspan= 1>
+                        $<strong>{{ order.get_cart_total }}</strong>
+                    </td>
+                {% endif %}
+            </tr>
+            <tr>
+                <td colspan=2>
+                    {% if order.get_cart_items %}
+                        <a href="{% url 'shopping_cart:checkout' %}" class="pull-right btn btn-primary">Proceed To Checkout</a>
+                    {% endif %}
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Delete Product Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModal" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModal">Delete product</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h6 class="font-weight-light">Do you want to delete this product from your cart? ID: <span id="prod"></span></h6>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" id="deleteConfirm" class="btn btn-danger">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascript %}
+    <script>
+
+        $('#deleteModal').on('show.bs.modal', function (event) {
+            var prod = $(event.relatedTarget).data('id');
+            $('#prod').html(prod);
+        });
+
+        $(document).on('click', '#deleteConfirm', function (event) {
+            event.preventDefault();
+            var prod_id = $('#prod').text();
+            console.log("prod: " + prod_id);
+            $.ajax({
+                url: '{% url 'shopping_cart:delete_from_cart' %}',
+                method: 'POST',
+                dataType: 'json',
+                data:{
+                    'product': prod_id,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                },
+                success: function () {
+                    $('#deleteModal').modal('toggle');
+                    location.reload();
+                },
+                error: function () {
+                    $('#deleteModal').modal('toggle');
+                    console.log('error');
+                    alert('Something went wrong');
+                }
+            })
+        });
+        $(".alert-dismissible").fadeTo(2000, 500).slideUp(500, function(){
+            $(".alert-dismissible").alert('close');
+        });
+
+    </script>
+{% endblock %}
