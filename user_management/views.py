@@ -4,17 +4,19 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core import serializers
+from django.db.models import Count
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
 from cart.models import Order, OrderItem
-from product.models import Product
 from shop.models import Shop
-from .decorators import admin_required
+from .decorators import admin_required, user_required
 from .forms import RegisterFormNormalUser, RegisterFormVendor, LoginForm
 
 # Create your views here.
 from .models import CustomUser
+
+import _datetime
 
 
 def register(response):
@@ -85,7 +87,7 @@ def login_view(request):
     return render(request, 'login.html', context)
 
 
-@login_required
+@user_required
 def account_profile_view(request):
     if not request.user.is_authenticated:
         return redirect('user_management:login')
@@ -97,7 +99,33 @@ def account_profile_view(request):
     user = CustomUser.objects.get(username=request.user.username)
     if user.is_vendor:
         shop = Shop.objects.get(pk=user)
-        context['sales'] = OrderItem.objects.filter(shop=shop)
+        orders = OrderItem.objects.filter(shop=shop)
+        # month = get_current_month()
+        # year = get_current_year()
+        # orders_month = OrderItem.objects.filter(date_added__month=month, date_added__year=year)
+        #
+        # total_earnings_mth = 0
+        # total_sent_mth = 0
+
+        total_earnings = 0
+        total_sent = 0
+        for order in orders:
+            total_earnings += order.final_price
+            if order.is_sent:
+                total_sent += 1
+
+        # for order in orders_month:
+        #     total_earnings_mth += order.final_price
+        #     if order.is_sent:
+        #         total_sent_mth += 1
+        #
+        # context['sales_mth'] = orders_month
+        # context['total_earnings_mth'] = total_earnings_mth
+        # context['total_sent_mth'] = total_sent_mth
+
+        context['sales'] = orders
+        context['total_earnings'] = total_earnings
+        context['total_sent'] = total_sent
 
     return render(request, 'account_profile.html', context)
 
@@ -135,7 +163,6 @@ def close_account(request):
     return render(request, 'close_account.html')
 
 
-@login_required
 @admin_required
 def ban_user_view(request):
     data = {'success': False}
@@ -155,7 +182,6 @@ def ban_user_view(request):
     return JsonResponse(data)
 
 
-@login_required
 @admin_required
 def unban_user_view(request):
     data = {'success': False}
@@ -175,7 +201,7 @@ def unban_user_view(request):
     return JsonResponse(data)
 
 
-@login_required
+@user_required
 def get_orders_view(request):
     data = {'success': False}
 
@@ -186,3 +212,13 @@ def get_orders_view(request):
         return JsonResponse(prod_data, safe=False)
 
     return JsonResponse(data)
+
+#
+# def get_current_month():
+#     now = datetime.now()
+#     return now.strftime("%m")
+#
+#
+# def get_current_year():
+#     now = datetime.now()
+#     return now.strftime("%y")

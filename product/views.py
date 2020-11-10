@@ -1,4 +1,3 @@
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
@@ -10,7 +9,7 @@ from django.contrib import messages
 from django.urls import reverse_lazy
 from django.views.generic import UpdateView
 
-from cart.models import Order, OrderItem
+from cart.models import OrderItem
 from product.forms import NewProductForm
 from product.models import Product
 from shop.models import Shop
@@ -18,7 +17,6 @@ from user_management.decorators import vendor_required
 import requests
 
 
-@login_required
 @vendor_required
 def add_product_view(request):
     context = {}
@@ -37,7 +35,6 @@ def add_product_view(request):
     return render(request, 'add_new_product.html', context)
 
 
-@login_required
 @vendor_required
 def finalize_new_product_view(response, **kwargs):
     context = {'prod_id': kwargs.get('prod_id', False)}
@@ -86,7 +83,6 @@ class ProductChange(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('shop:my_shop')
 
 
-@login_required
 @vendor_required
 def remove_product_view(response):
     prod_id = response.POST.get('prodid')
@@ -104,7 +100,6 @@ def remove_product_view(response):
     return JsonResponse({"state": success})
 
 
-@login_required
 @vendor_required
 def send_product_view(response):
     data = {'success': False}

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Forbidden{% endblock %}
+{% block content %}
+
+    <div class="container justify-content-center">
+
+        <div class="row justify-content-center">
+            <h1 class="font-weight-light mt-4">
+                FORBIDDEN PAGE
+            </h1>
+        </div>
+        {% if user.is_authenticated %}
+            <div class="row justify-content-center">
+                <h4 class="font-weight-light">
+                    It seems you have not the right permissions to see this page
+                </h4>
+            </div>
+            <div class="row justify-content-center mt-2">
+                <a class="btn btn-success" href="{% url 'home' %}">
+                    Return Home
+                </a>
+            </div>
+
+        {% else %}
+            <div class="row justify-content-center mt-2">
+                <h4 class="font-weight-light">
+                    It seems you are not logged in hence you can not see this area
+                </h4>
+            </div>
+
+            <div class="row justify-content-center mt-2">
+                <h5 class="font-weight-light">
+                    Please login <a href="{% url 'user_management:login' %}">here</a>
+                </h5>
+            </div>
+
+        {% endif %}
+    </div>
+    </div>
+{% endblock %}

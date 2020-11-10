@@ -1,0 +1,20 @@
+Hello {{ username }},
+Here's your list of the things you bought:
++==================================+==========+==========+
+|               Name                 Quantity     Price  |
++==================================+==========+==========+
+{% for prod in order.get_cart_items %}
++==================================+==========+==========+
+|   {{ prod.product.title }}                     {{prod.quantity}}        {{prod.final_price}} |
++----------------------------------+----------+----------+
+{% endfor %}
++========+
+Total:
+{{ order.get_cart_total }}
++========+
+
+Address: {{ address }}, {{ country }}
+We will send your products to the address you indicated
+
+Sincerely,
+eCards Team :)

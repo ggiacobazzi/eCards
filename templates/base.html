@@ -37,9 +37,6 @@
             <a class="navbar-brand" href="{% url 'home' %}">
                 <img src="{% static 'img/logo3.png' %}" height="30" class="d-inline-block align-top" alt="">
             </a>
-            {#            <li class="nav-item">#}
-            {#                <a class="nav-link" href="#">About {{ about }}</a>#}
-            {#            </li>#}
 
         </ul>
         <ul class="navbar-nav">
@@ -47,9 +44,17 @@
                 <div class="input-group">
                     <form class="form-inline" action="{% url 'search' %}" method="post">
                         {% csrf_token %}
+                        <div class="form-group-inline">
+                            <select class="custom-select" id="category" name="order_parameter">
+                                <option value="placeholder">Order by</option>
+                                <option value="title">Name</option>
+                                <option value="price">Price</option>
+                                <option value="id">Prod ID</option>
+                            </select>
+                        </div>
                         <input class="form-control mr-sm-2 search-input" name="prod_query" style="width: 500px" type="search" placeholder="Search..." aria-label="Search">
                         <div class="input-group-append">
-                            <button class="btn btn-outline-warning my-2 my-sm-0" type="submit">
+                            <button class="btn btn-outline-warning my-2 my-sm-0" type="submit" id="searchButton">
                                 <i class="fas fa-search text-grey" aria-hidden="true"></i>
                             </button>
                         </div>
@@ -123,19 +128,6 @@
     {% block content %}
     {% endblock %}
 </div>
-{#<footer id="sticky-footer" class="py-4 bg-dark text-white-50">#}
-{#        <span class="left-div">#}
-{#            <p class="ml-3">#}
-{#                <h9>Telephone: 0000</h9>#}
-{#            </p>#}
-{#        </span>#}
-{#    <span class="right-div">#}
-{#            Socials:#}
-{#            <img src="{% static 'img/fb_icon.png' %}">#}
-{#            <img src="{% static 'img/ig_icon.png' %}">#}
-{#            <img src="{% static 'img/pint_icon.png' %}">#}
-{#        </span>#}
-{#</footer>#}
 {% block javascript %}
 {% endblock %}
 </body>

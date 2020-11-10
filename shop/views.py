@@ -1,4 +1,4 @@
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
@@ -11,7 +11,6 @@ from user_management.decorators import user_required, vendor_required
 from user_management.models import CustomUser
 
 
-@login_required
 @user_required
 def create_shop_view(request):
     context = {}
@@ -38,7 +37,7 @@ def create_shop_view(request):
     return render(request, 'create_new_shop.html', context)
 
 
-@login_required
+@user_required
 def create_shop_view_partial(request):
     context = {}
 
@@ -64,7 +63,6 @@ def create_shop_view_partial(request):
     return render(request, 'create_new_shop_partial.html', context)
 
 
-@login_required
 @vendor_required
 def my_shop_view(request):
     context = {}
@@ -107,12 +105,11 @@ def shop_detail_view(request, name):
         shop = None
     context['shop'] = shop
     context['vendor'] = shop.user
-    # context['review_form'] = NewReviewForm()
 
     return render(request, 'shop_detail.html', context)
 
 
-@login_required
+@user_required
 def shop_add_review_view(request):
     data = {'success': False}
     if request.method == 'POST':

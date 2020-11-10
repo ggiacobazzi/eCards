@@ -4,10 +4,14 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 
 # Create your views here.
+from django.template.loader import render_to_string
+from django.core.mail import send_mail
+
 from cart.forms import PaymentForm
 from cart.models import Order, OrderItem
 from product.models import Product
 from shop.models import Shop
+from user_management.decorators import user_required
 from user_management.models import CustomUser
 import datetime
 
@@ -20,7 +24,7 @@ def get_user_pending_order(request):
     return 0
 
 
-@login_required
+@user_required
 def add_to_cart_view(request):
     data = {'success': False}
 
@@ -47,7 +51,7 @@ def add_to_cart_view(request):
     return JsonResponse(data)
 
 
-@login_required
+@user_required
 def delete_from_cart_view(request):
     data = {'success': False}
     item_id = request.POST.get('product')
@@ -63,14 +67,14 @@ def delete_from_cart_view(request):
     return JsonResponse(data)
 
 
-@login_required
+@user_required
 def cart_summary_view(request, **kwargs):
     existing_order = get_user_pending_order(request)
     context = {'order': existing_order}
     return render(request, 'cart_summary.html', context)
 
 
-@login_required
+@user_required
 def checkout_view(request):
     order = get_user_pending_order(request)
     context = {'order': order}
@@ -89,11 +93,32 @@ def checkout_view(request):
 
             order_items = order_to_purchase.items.all()
             order_items.update(is_ordered=True, date_ordered=datetime.datetime.now())
-            messages.info(request, "Thank you! Your purchase was successful!", extra_tags='alert-success '
-                                                                                          'alert-dismissible')
+
+            send_email(request, order_to_purchase)
+
+            messages.info(request, "Thank you! Your purchase was successful! You will receive a mail shortly",
+                          extra_tags='alert-success '
+                                     'alert-dismissible')
             return redirect('user_management:profile')
         else:
             context['payment_form'] = payment_form
     else:
         context['payment_form'] = PaymentForm()
     return render(request, 'checkout.html', context)
+
+
+def send_email(request, order_to_purchase):
+    user_email = request.user.email
+    msg_plain = render_to_string('email.txt', {'username': request.user.username})
+    msg_html = render_to_string('confirm_email.html', {'username': request.user.username,
+                                                       'order': order_to_purchase,
+                                                       'address': order_to_purchase.shipping_address,
+                                                       'country': order_to_purchase.shipping_country})
+
+    send_mail(
+        'Order summary',
+        msg_plain,
+        'ecards@ecommerce.com',
+        [user_email],
+        html_message=msg_html
+    )

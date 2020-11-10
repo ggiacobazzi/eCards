@@ -18,7 +18,7 @@ from django.urls import path, include
 from . import views, settings
 from django.conf.urls.static import static
 from user_management import views as v
-from .views import search_view
+from .views import search_view, forbidden_view
 
 urlpatterns = [
                   path('admin/', admin.site.urls),
@@ -26,6 +26,7 @@ urlpatterns = [
                   path('home', views.home, name='home'),
                   path('register', v.register, name='register'),
                   path('search/', search_view, name='search'),
+                  path('forbidden/', forbidden_view, name='forbidden'),
                   path('', include('user_management.urls', namespace='user_management')),
                   path('', include('shop.urls', namespace='shop')),
                   path('', include('product.urls', namespace='product')),
